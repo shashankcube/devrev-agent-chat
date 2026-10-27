@@ -71,7 +71,8 @@ class ChatTests(unittest.TestCase):
             os.waitpid(pid, 0)
             os.close(master)
         self.assertIn(b'COUNT 6000', output)
-        self.assertIn(b'x' * 100, output)  # Pasted input remains visible.
+        # GNU readline horizontally scrolls long input to the terminal width.
+        self.assertIn(b'x' * 10, output)  # Pasted input remains visible.
 
     def test_agent_prompt_format_and_remembered_selection(self):
         client = Mock(base='https://api.devrev.ai/internal')
