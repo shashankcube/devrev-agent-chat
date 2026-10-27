@@ -1,0 +1,19 @@
+# Credentials and local runtime data
+.env
+.env.*
+!.env.example
+.webhook-secret
+.agent-state/
+events*.jsonl
+run-*.json
+final*.json
+downloads/
+*.log
+
+# Python and editor files
+__pycache__/
+*.py[cod]
+.venv/
+.DS_Store
+.idea/
+.vscode/
