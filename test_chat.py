@@ -3,8 +3,15 @@ import contextlib
 import hashlib
 import io
 import json
+import os
 from pathlib import Path
+import pty
+import re
+import select
+import signal
+import sys
 import tempfile
+import time
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
@@ -24,6 +31,47 @@ class ChatTests(unittest.TestCase):
 
     def tearDown(self):
         self.temp.cleanup()
+
+    def test_long_visible_token_paste_submits_on_enter(self):
+        # Exercise a real terminal: mocking input cannot detect canonical-buffer limits.
+        pid, master = pty.fork()
+        if pid == 0:
+            os.environ['TERM'] = 'dumb'
+            os.chdir(Path(__file__).resolve().parent)
+            os.execv(sys.executable, [sys.executable, '-u', '-c',
+                "import chat; value=input('Token: '); print('COUNT', len(value))"])
+        os.set_blocking(master, False)
+        output = b''
+        remaining = b'x' * 6000 + b'\n'
+        deadline = time.monotonic() + 15
+        try:
+            while time.monotonic() < deadline:
+                ready, writable, _ = select.select([master],
+                    [master] if b'Token: ' in output and remaining else [], [], 0.05)
+                if ready:
+                    try:
+                        chunk = os.read(master, 65536)
+                    except OSError:
+                        break
+                    if not chunk:
+                        break
+                    output += chunk
+                if writable:
+                    try:
+                        remaining = remaining[os.write(master, remaining[:256]):]
+                    except BlockingIOError:
+                        pass
+                if re.search(rb'COUNT \d+\r?\n', output):
+                    break
+        finally:
+            try:
+                os.kill(pid, signal.SIGKILL)
+            except ProcessLookupError:
+                pass
+            os.waitpid(pid, 0)
+            os.close(master)
+        self.assertIn(b'COUNT 6000', output)
+        self.assertIn(b'x' * 100, output)  # Pasted input remains visible.
 
     def test_agent_prompt_format_and_remembered_selection(self):
         client = Mock(base='https://api.devrev.ai/internal')

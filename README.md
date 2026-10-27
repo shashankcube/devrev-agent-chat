@@ -21,7 +21,7 @@ Paste your DevRev token: <paste token here>
 Agent (for example ai_agent-48): ai_agent-48
 ```
 
-Paste your token and press Enter. The pasted text is visible in the terminal.
+Paste your token and press Enter. The pasted text is visible in the terminal, including long tokens. After Enter, you’ll see “Checking token with DevRev…” and then the agent prompt.
 
 Use your agent's ID in the format `ai_agent-<number>`. The script validates it, sets up the connection, and opens a chat. On later launches, press Enter to reuse your last agent or enter another ID.
 

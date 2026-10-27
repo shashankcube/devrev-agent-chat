@@ -60,6 +60,8 @@ You can also import `agent.Client`, `agent.ensure_dm`, `agent.invoke_body`, and 
 
 ## Troubleshooting
 
+**Enter does nothing after pasting.** Update with `git pull` and restart `python3 chat.py --login`. The launcher enables terminal line editing to accept long tokens that can exceed the default terminal input buffer.
+
 **Token rejected.** Run `python3 chat.py --login`. A valid token still needs access to the agent, chats, artifacts, webhooks, and async execution APIs.
 
 **Agent unavailable.** Check the ID and workspace. Enter `ai_agent-` followed by the number; the launcher expands it into the full organization-scoped identifier.

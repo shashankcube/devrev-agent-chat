@@ -9,6 +9,8 @@ import os
 from pathlib import Path
 import platform
 import re
+# Enable terminal line editing so long pasted tokens bypass canonical input limits.
+import readline
 import secrets
 import shlex
 import signal
@@ -81,13 +83,16 @@ def login(base, replace=False, save=True):
         token = input('Paste your DevRev token: ').strip()
     client = agent.Client(base, token=token)
     try:
+        print('Checking token with DevRev…', flush=True)
         user = client.current_user()
+        print('Connected to DevRev.', flush=True)
     except agent.ToolError as exc:
         if not prompted and 'HTTP 401' in str(exc):
             print('Saved token expired or was rejected. Enter a replacement.')
             return login(base, replace=True, save=save)
         raise
     if prompted and save:
+        print('Remembering token in your OS keychain…', flush=True)
         try:
             stored = store.put(token)
         except (OSError, subprocess.TimeoutExpired):
