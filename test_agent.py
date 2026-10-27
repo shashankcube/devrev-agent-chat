@@ -283,7 +283,10 @@ class ProtocolTests(unittest.TestCase):
         class Redirect(BaseHTTPRequestHandler):
             def log_message(self, *_): pass
             def do_POST(self):
+                # Drain the request before closing; macOS otherwise resets the socket.
+                self.rfile.read(int(self.headers.get('Content-Length', 0)))
                 self.send_response(302)
+                self.send_header('Content-Length', '0')
                 self.send_header('Location', f'http://127.0.0.1:{self.server.server_port}/leak')
                 self.end_headers()
             def do_GET(self):
@@ -291,7 +294,7 @@ class ProtocolTests(unittest.TestCase):
                 self.send_response(200)
                 self.end_headers()
         with running(ThreadingHTTPServer(('127.0.0.1', 0), Redirect)) as url:
-            with self.assertRaises(agent.ToolError):
+            with self.assertRaisesRegex(agent.ToolError, 'HTTP 302'):
                 agent.Client(url, 'private-token').call('test', {})
         self.assertEqual(touched, [])
 
