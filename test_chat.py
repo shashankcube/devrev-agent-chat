@@ -55,7 +55,7 @@ class ChatTests(unittest.TestCase):
 
     def test_saved_token_is_reused_without_prompt(self):
         with patch.object(chat, 'Credentials') as store, patch.object(chat.agent, 'Client') as client, \
-             patch.object(chat.getpass, 'getpass') as prompt, patch.dict('os.environ', {}, clear=True):
+             patch('builtins.input') as prompt, patch.dict('os.environ', {}, clear=True):
             store.return_value.get.return_value = 'stored-token'
             client.return_value.current_user.return_value = USER
             chat.login('https://api.devrev.ai/internal')
@@ -64,7 +64,7 @@ class ChatTests(unittest.TestCase):
 
     def test_first_login_validates_then_saves_token(self):
         with patch.object(chat, 'Credentials') as store, patch.object(chat.agent, 'Client') as client, \
-             patch.object(chat.getpass, 'getpass', return_value='new-token'), patch.dict('os.environ', {}, clear=True), \
+             patch('builtins.input', return_value='new-token'), patch.dict('os.environ', {}, clear=True), \
              contextlib.redirect_stdout(io.StringIO()):
             store.return_value.get.return_value = None
             client.return_value.current_user.return_value = USER

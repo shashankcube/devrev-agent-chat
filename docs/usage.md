@@ -30,7 +30,7 @@ A new DM is private and non-default, with the caller and selected agent as membe
 
 ## Small scripts and individual operations
 
-`agent.py` exposes the same building blocks for automation. It reads `DEVREV_TOKEN`; it does not read the launcher's OS keychain. Supply that environment variable through your preferred secret manager or a hidden shell prompt, rather than putting the token in shell history.
+`agent.py` exposes the same building blocks for automation. It reads `DEVREV_TOKEN`; it does not read the launcher's OS keychain. For a simple paste-and-go token prompt, use `chat.py`; the pasted token is visible in the terminal.
 
 ```sh
 python3 agent.py --help

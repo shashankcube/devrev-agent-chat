@@ -3,7 +3,6 @@
 import argparse
 import base64
 import fcntl
-import getpass
 import hashlib
 import json
 import os
@@ -79,7 +78,7 @@ def login(base, replace=False, save=True):
     token = None if replace else os.getenv('DEVREV_TOKEN') or store.get()
     prompted = not token
     if prompted:
-        token = getpass.getpass('DevRev token (hidden): ').strip()
+        token = input('Paste your DevRev token: ').strip()
     client = agent.Client(base, token=token)
     try:
         user = client.current_user()
